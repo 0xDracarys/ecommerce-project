@@ -1,5 +1,7 @@
-import Image from "next/image";
+"use client";
 
+import Image from "next/image";
+import { useEffect, useState } from "react";
 import {
   ChevronDown,
   ChevronUp,
@@ -10,7 +12,7 @@ import {
 import IconButton from "@/components/ui/icon-button";
 import Currency from "@/components/ui/currency";
 import useCart from "@/hooks/use-cart";
-import { CartItem } from "@/types";
+import { CartItem, Color, Size } from "@/types";
 
 interface CartItemProps {
   data: CartItem;
@@ -18,6 +20,46 @@ interface CartItemProps {
 
 const CartItem: React.FC<CartItemProps> = ({ data }) => {
   const cart = useCart();
+  const [colors, setColors] = useState<Color[]>([]);
+  const [sizes, setSizes] = useState<Size[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        
+        // Fetch colors
+        const colorsResponse = await fetch(`${apiUrl}/colors`);
+        const colorsData = await colorsResponse.json();
+        setColors(colorsData);
+        
+        // Fetch sizes
+        const sizesResponse = await fetch(`${apiUrl}/sizes`);
+        const sizesData = await sizesResponse.json();
+        setSizes(sizesData);
+        
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching color and size data:', error);
+        setIsLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, []);
+
+  // Get color name from color ID
+  const getColorName = (colorId: string) => {
+    const color = colors.find(c => c.id === colorId);
+    return color ? color.name : colorId;
+  };
+
+  // Get size name from size ID
+  const getSizeName = (sizeId: string) => {
+    const size = sizes.find(s => s.id === sizeId);
+    return size ? size.name : sizeId;
+  };
 
   return (
     <li className="flex py-6 border-b">
@@ -40,13 +82,13 @@ const CartItem: React.FC<CartItemProps> = ({ data }) => {
               <div className="flex flex-row">
                 <p className="text-gray-500">Color: </p>
                 <p className="font-semibold">
-                  &nbsp;{data.variant.colorId}
+                  &nbsp;{isLoading ? '...' : getColorName(data.variant.colorId)}
                 </p>{" "}
               </div>
               <div className="flex flex-row">
                 <p className="text-gray-500 ">Size:</p>
                 <p className="font-semibold">
-                  &nbsp;{data.variant.sizeId}
+                  &nbsp;{isLoading ? '...' : getSizeName(data.variant.sizeId)}
                 </p>{" "}
               </div>
             </div>

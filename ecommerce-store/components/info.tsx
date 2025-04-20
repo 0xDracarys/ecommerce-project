@@ -1,8 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ShoppingCart } from "lucide-react";
 
-import { Color, Product } from "@/types";
+import { Color, Product, Size } from "@/types";
 import Currency from "@/components/ui/currency";
 import Button from "@/components/ui/button";
 import useCart from "@/hooks/use-cart";
@@ -22,12 +22,53 @@ const Info: React.FC<InfoProps> = ({ data }) => {
   const cart = useCart();
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
-  const [filteredSizeOptions, setFilteredSizeOptions] =
-    useState<string[]>([]);
+  const [filteredSizeOptions, setFilteredSizeOptions] = useState<string[]>([]);
+  const [colors, setColors] = useState<Color[]>([]);
+  const [sizes, setSizes] = useState<Size[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch colors and sizes when component mounts
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        // Extract store ID from the API URL
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        
+        // Fetch colors
+        const colorsResponse = await fetch(`${apiUrl}/colors`);
+        const colorsData = await colorsResponse.json();
+        setColors(colorsData);
+        
+        // Fetch sizes
+        const sizesResponse = await fetch(`${apiUrl}/sizes`);
+        const sizesData = await sizesResponse.json();
+        setSizes(sizesData);
+      } catch (error) {
+        console.error('Error fetching color and size data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, []);
 
   const colorOptions = Array.from(
     new Set(data.variants.map((variant) => variant.colorId))
   );
+
+  // Get color name from color ID
+  const getColorName = (colorId: string) => {
+    const color = colors.find(c => c.id === colorId);
+    return color ? color.name : colorId;
+  };
+
+  // Get size name from size ID
+  const getSizeName = (sizeId: string) => {
+    const size = sizes.find(s => s.id === sizeId);
+    return size ? size.name : sizeId;
+  };
 
   const onColorSelect = (color: string) => {
     setSelectedColor(color);
@@ -54,6 +95,10 @@ const Info: React.FC<InfoProps> = ({ data }) => {
     }
   };
 
+  if (isLoading) {
+    return <div className="p-4">Loading product details...</div>;
+  }
+
   return (
     <nav>
       {/* Name */}
@@ -75,17 +120,21 @@ const Info: React.FC<InfoProps> = ({ data }) => {
           <h3 className="font-semibold text-black">
             Color:
           </h3>
-          {colorOptions.map((color, index) => (
+          {colorOptions.map((colorId, index) => (
             <Button
               key={index}
-              onClick={() => onColorSelect(color)}
+              onClick={() => onColorSelect(colorId)}
               className={`border-2 p-3 text-xs ${
-                selectedColor === color
+                selectedColor === colorId
                   ? "border-primary-500 bg-black"
                   : "border-gray-500 bg-white text-black"
               }`}
+              style={{
+                backgroundColor: getColorName(colorId).toLowerCase() === colorId.toLowerCase() ? '#fff' : getColorName(colorId).toLowerCase(),
+                color: getColorName(colorId).toLowerCase() === 'white' || getColorName(colorId).toLowerCase() === 'yellow' ? '#000' : '#fff',
+              }}
             >
-              {color}
+              {getColorName(colorId)}
             </Button>
           ))}
         </div>
@@ -94,17 +143,17 @@ const Info: React.FC<InfoProps> = ({ data }) => {
           <h3 className="font-semibold text-black">
             Size:
           </h3>
-          {filteredSizeOptions.map((size, index) => (
+          {filteredSizeOptions.map((sizeId, index) => (
             <Button
               key={index}
-              onClick={() => setSelectedSize(size)}
+              onClick={() => setSelectedSize(sizeId)}
               className={`border-2 p-3 text-xs ${
-                selectedSize === size
+                selectedSize === sizeId
                   ? "border-primary-500 "
                   : "border-gray-500 bg-white text-black"
               }`}
             >
-              {size}
+              {getSizeName(sizeId)}
             </Button>
           ))}
         </div>

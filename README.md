@@ -1,4 +1,4 @@
-# <img src="https://github.com/Repith/ecommerce-project/blob/main/ecommerce-store/public/logo-black.png" width=250px height=auto alt="Logo">
+# <img src="image.png" width=250px height=auto alt="Logo">
 
 This project serves as a comprehensive solution for online stores, seamlessly integrating real-time store management with an elegant and efficient e-commerce platform. It was created as a reference point to understand how to build an advanced online store.
 
@@ -19,10 +19,9 @@ This project serves as a comprehensive solution for online stores, seamlessly in
 
 ## Demo
 
-Admin Dashboard: https://ecommerce-project-admin-five.vercel.app
+Admin Dashboard: https://localhost:3000
 
-Store: https://ecommerce-project-store-phi.vercel.app
-
+Store: https://localhost:3001
 ## Installation
 
 To install this project you have to run both instances (Admin Dashboard and Store) in separate servers. Download the whole repository and follow these instructions:

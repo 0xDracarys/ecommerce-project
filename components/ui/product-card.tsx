@@ -1,15 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { MouseEventHandler } from "react";
-import { Expand } from "lucide-react";
+import { Expand, Heart } from "lucide-react";
 
 import { Product } from "@/types";
 
 import Currency from "@/components/ui/currency";
-import FavoriteButton from "@/components/ui/favorite-button";
 
 import usePreviewModal from "@/hooks/use-preview-modal";
 import Button from "./button";
@@ -21,6 +20,7 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ data }) => {
   const previewModal = usePreviewModal();
   const router = useRouter();
+  const [isFavorite, setIsFavorite] = useState(false);
 
   const handleClick = () => {
     router.push(`/product/${data?.id}`);
@@ -30,6 +30,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ data }) => {
     event.stopPropagation();
 
     previewModal.onOpen(data);
+  };
+
+  const toggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsFavorite(!isFavorite);
+    console.log(`Toggle favorite for product: ${data.id}`);
   };
 
   return (
@@ -47,11 +53,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ data }) => {
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         {/* Favorite Button */}
-        <div 
+        <div
           className="absolute top-2 right-2 z-10"
           onClick={(e) => e.stopPropagation()}
         >
-          <FavoriteButton productId={data.id} />
+          <Button
+            onClick={toggleFavorite}
+            variant="outline"
+            size="icon"
+            className="bg-white hover:bg-gray-100"
+          >
+            <Heart 
+              className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} 
+            />
+          </Button>
         </div>
         <div className="absolute w-full px-6 transition opacity-0 group-hover:opacity-100 bottom-5">
           <div className="flex justify-center gap-x-6">
@@ -77,4 +92,4 @@ const ProductCard: React.FC<ProductCardProps> = ({ data }) => {
   );
 };
 
-export default ProductCard;
+export default ProductCard; 

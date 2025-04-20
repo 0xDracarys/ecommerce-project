@@ -72,11 +72,63 @@ export async function POST(
       });
     }
 
-    if (!variants) {
+    if (!variants || variants.length === 0) {
       return new NextResponse(
         "Need at least 1 variant of a product",
         { status: 400 }
       );
+    }
+
+    // Validate that all sizeId and colorId values are valid MongoDB ObjectIDs
+    for (const variant of variants) {
+      // Check if sizeId or colorId is not a valid MongoDB ObjectID (24 hex characters)
+      if (variant.sizeId && typeof variant.sizeId === 'string') {
+        if (!/^[0-9a-fA-F]{24}$/.test(variant.sizeId)) {
+          try {
+            // If it's not a valid ID, look up the actual ID by name
+            const size = await prismadb.size.findFirst({
+              where: {
+                name: variant.sizeId,
+                storeId: params.storeId
+              }
+            });
+            
+            if (!size) {
+              return new NextResponse(`Size with name "${variant.sizeId}" not found`, { status: 400 });
+            }
+            
+            // Replace the name with the actual ID
+            variant.sizeId = size.id;
+          } catch (error) {
+            console.error("Error finding size:", error);
+            return new NextResponse(`Invalid size selection`, { status: 400 });
+          }
+        }
+      }
+      
+      if (variant.colorId && typeof variant.colorId === 'string') {
+        if (!/^[0-9a-fA-F]{24}$/.test(variant.colorId)) {
+          try {
+            // If it's not a valid ID, look up the actual ID by name
+            const color = await prismadb.color.findFirst({
+              where: {
+                name: variant.colorId,
+                storeId: params.storeId
+              }
+            });
+            
+            if (!color) {
+              return new NextResponse(`Color with name "${variant.colorId}" not found`, { status: 400 });
+            }
+            
+            // Replace the name with the actual ID
+            variant.colorId = color.id;
+          } catch (error) {
+            console.error("Error finding color:", error);
+            return new NextResponse(`Invalid color selection`, { status: 400 });
+          }
+        }
+      }
     }
 
     if (!params.storeId) {

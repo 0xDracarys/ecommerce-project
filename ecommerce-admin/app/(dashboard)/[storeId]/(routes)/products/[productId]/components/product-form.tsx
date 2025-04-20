@@ -113,13 +113,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           isFeatured: false,
           isArchived: false,
           description: "",
-          variants: [
-            {
-              sizeId: "",
-              colorId: "",
-              inStock: 1,
-            },
-          ],
+          variants: sizes.length > 0 && colors.length > 0 
+            ? [
+                {
+                  sizeId: sizes[0].id,
+                  colorId: colors[0].id,
+                  inStock: 1,
+                },
+              ]
+            : [],
         },
   });
 
@@ -128,6 +130,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const onSubmit = async (data: ProductFormValues) => {
     try {
       setLoading(true);
+      // Log the variants data to debug the issue
+      console.log("Submitting product with variants:", data.variants);
+      
       if (initialData) {
         await axios.patch(
           `/api/${params.storeId}/products/${params.productId}`,
@@ -144,6 +149,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       toast.success(toastMessage);
     } catch (error) {
       toast.error("Something went wrong.");
+      console.error("[PRODUCT_FORM_ERROR]", error);
     } finally {
       setLoading(false);
     }
@@ -428,7 +434,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                               {colors.map((color) => (
                                 <SelectItem
                                   key={color.id}
-                                  value={color.name}
+                                  value={color.id}
                                 >
                                   {color.name}
                                 </SelectItem>
@@ -465,7 +471,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                               {sizes.map((size) => (
                                 <SelectItem
                                   key={size.id}
-                                  value={size.name}
+                                  value={size.id}
                                 >
                                   {size.name}
                                 </SelectItem>
@@ -511,8 +517,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                 form.setValue("variants", [
                                   ...form.watch("variants"),
                                   {
-                                    colorId: "default",
-                                    sizeId: "default",
+                                    colorId: colors.length > 0 ? colors[0].id : "",
+                                    sizeId: sizes.length > 0 ? sizes[0].id : "",
                                     inStock: 1,
                                   },
                                 ])

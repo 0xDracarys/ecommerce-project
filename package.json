@@ -1,9 +1,11 @@
 {
-  "name": "ecommerce-store",
+  "name": "ecommerce-project",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3001",
+    "dev": "next dev",
+    "dev:admin": "cd ecommerce-admin && npm run dev",
+    "dev:store": "cd ecommerce-store && npm run dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

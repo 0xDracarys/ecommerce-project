@@ -1,24 +1,19 @@
-
 # <img src="https://github.com/Repith/ecommerce-project/blob/main/ecommerce-store/public/logo-black.png" width=250px height=auto alt="Logo">
 
-
-
-This project serves as a comprehensive solution for online store, seamlessly integrating real-time store management with an elegant and efficient e-commerce platform. It was created as a reference point to understand how to build an advanced online store.
-
+This project serves as a comprehensive solution for online stores, seamlessly integrating real-time store management with an elegant and efficient e-commerce platform. It was created as a reference point to understand how to build an advanced online store.
 
 ## Features
 
-- admin dashboard featuring extensive functionalities for modifying size, color, main billboard, and category options
-- creating products with many possible variants
-- managing orders for future empolyees
-- client store site with product page, quickview, filtered categories, search bar, cart and summary checkout
-
+- Admin dashboard featuring extensive functionalities for modifying size, color, main billboard, and category options
+- Creating products with many possible variants
+- Managing orders for future employees
+- Client store site with product page, quickview, filtered categories, search bar, cart and summary checkout
 
 ## Tech Stack
 
 **Client:** React, Next.js, TailwindCSS, shadcn/ui
 
-**Server:** Prisma (Planetscale)
+**Server:** Prisma with MongoDB
 
 **Other:** Stripe, Clerk
 
@@ -28,19 +23,18 @@ Admin Dashboard: https://ecommerce-project-admin-five.vercel.app
 
 Store: https://ecommerce-project-store-phi.vercel.app
 
-
 ## Installation
 
-To install this project you have to run both instances (Admin Dashboard and Store) in separate servers. Download whole repository and follow instructions:
+To install this project you have to run both instances (Admin Dashboard and Store) in separate servers. Download the whole repository and follow these instructions:
 
-1. **Admin Dashboard**
+### 1. Admin Dashboard Setup
+
 ```bash
-  cd ecommerce-admin 
-  npm i
+cd ecommerce-admin 
+npm i
 ```
 
-
-Configure your **.env** file with your own keys from Clerk, PlanetScale, Cloudinary and Stripe.
+Configure your **.env** file with your own keys from Clerk, MongoDB, Cloudinary and Stripe.
 
 ```bash
 # Environment Variables
@@ -52,43 +46,78 @@ NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
 NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
 NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
 
-# PlanetScale
-DATABASE_URL=
+# MongoDB (previously PlanetScale)
+DATABASE_URL="mongodb+srv://yourusername:yourpassword@yourcluster.mongodb.net/yourdatabase"
 
 # Cloudinary
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
 
 # Stripe
 STRIPE_API_KEY=
-FRONTEND_STORE_URL=
+FRONTEND_STORE_URL=http://localhost:3001
 
 STRIPE_WEBHOOK_SECRET=
 ```
-Frontend store should be set on *localhost:3001* for local usage.
+
+Initialize the Prisma client and push the schema to your database:
 ```bash
 npx prisma generate
 npx prisma db push
 npm run dev
 ```
-Your errors from Prisma should be solved, and database connected.
 
-*Server should run on localhost:3000*
+Your admin dashboard should now be running at http://localhost:3000
 
-2. **Store configuration**
+### 2. Store Setup
+
 ```bash
-  cd ecommerce-store
-  npm i
+cd ecommerce-store
+npm i
 ```
-Create a store, and than copy NEXT_PUBLIC_API_URL from Settings page.
-Now create **.env** file located in ecommerce-store folder with proper data.
-```bash
-NEXT_PUBLIC_API_URL=https://localhost:3000/api/[your_store]
 
+Create a store in the admin dashboard, then copy the store ID (found in the URL as /[storeId]/ when viewing your store in the admin dashboard).
+
+Create a **.env** file in the ecommerce-store folder with:
+
+```
+NEXT_PUBLIC_API_URL=http://localhost:3000/api/[your_store_id]
+```
+
+Start the store:
 ```bash
 npm run dev
 ```
-Now the both - server and store should be connected properly.
 
-*(!) If you are using Stripe webhook with local environment use local client for proper results.*
+The store should now be running at http://localhost:3001
+
+## Important Notes
+
+1. **First Time Setup**: After starting the admin dashboard, you'll need to:
+   - Sign up with Clerk
+   - Create a new store
+   - Create categories, sizes, and colors before you can add products
+
+2. **Product Variants**: When adding products, you must select valid sizes and colors from the dropdown menus
+
+3. **MongoDB**: This project uses MongoDB, so make sure your connection string is correctly formatted
+
+4. **Local Development**: For Stripe webhooks with local environment, use the Stripe CLI:
+   ```
+   stripe listen --forward-to localhost:3000/api/webhook
+   ```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Missing Scripts**: If you get "Missing script: dev" error, make sure you're in the right directory.
+
+2. **MongoDB ObjectID Errors**: When creating products, ensure that size and color IDs are valid MongoDB ObjectIDs.
+
+3. **Pricing Error**: If you see "toNumber is not a function" error, it means the pricing data structure has changed. This has been fixed in the latest version.
+
+4. **API Connection Issues**: Make sure your store's .env file has the correct store ID in the API URL.
+
+5. **Clerk Authentication Issues**: If you see clock skew errors, ensure your system clock is correctly synchronized.
 
 ## Screenshots

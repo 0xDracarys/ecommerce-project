@@ -2,6 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { toast } from "react-hot-toast";
 
 import { Category } from "@/types";
 import getCategories from "@/actions/get-categories";
@@ -15,14 +16,21 @@ import { Menu } from "lucide-react";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [categories, setCategories] = useState<Category[]>(
-    []
-  );
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const result = await getCategories();
-      setCategories(result);
+      try {
+        setIsLoading(true);
+        const result = await getCategories();
+        setCategories(result);
+      } catch (error) {
+        console.error("Error in navbar fetching categories:", error);
+        // No need to show toast here as getCategories already has error handling
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchCategories();

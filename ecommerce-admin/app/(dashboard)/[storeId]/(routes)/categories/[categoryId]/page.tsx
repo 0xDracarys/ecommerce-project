@@ -7,11 +7,14 @@ const CategoryPage = async ({
 }: {
   params: { categoryId: string; storeId: string };
 }) => {
-  const category = await prismadb.category.findUnique({
-    where: {
-      id: params.categoryId,
-    },
-  });
+  // Only query the database if categoryId is not "new"
+  const category = params.categoryId === "new" 
+    ? null 
+    : await prismadb.category.findUnique({
+        where: {
+          id: params.categoryId,
+        },
+      });
 
   const billboards = await prismadb.billboard.findMany({
     where: {
@@ -20,14 +23,14 @@ const CategoryPage = async ({
   });
 
   return (
-    <main className="flex-col md:ml-56">
-      <section className="flex-1 p-8 pt-6 space-y-4">
-        <CategoryForm
-          initialData={category}
-          billboards={billboards}
+    <div className="flex-col md:ml-56">
+      <div className="flex-1 p-8 pt-6 space-y-4">
+        <CategoryForm 
+          billboards={billboards} 
+          initialData={category} 
         />
-      </section>
-    </main>
+      </div>
+    </div>
   );
 };
 

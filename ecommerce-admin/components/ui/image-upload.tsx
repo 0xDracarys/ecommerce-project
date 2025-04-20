@@ -2,11 +2,14 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CldUploadWidget } from "next-cloudinary";
-import { ImagePlus, Trash } from "lucide-react";
+import { ImagePlus, Trash, UploadCloud } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
 import { MountedCheck } from "@/lib/mounted-check";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface imageUploadProps {
   disabled?: boolean;
@@ -21,8 +24,55 @@ const ImageUpload: React.FC<imageUploadProps> = ({
   onRemove,
   value,
 }) => {
-  const onUpload = (result: any) => {
+  const router = useRouter();
+  const [isUploading, setIsUploading] = useState(false);
+  
+  const onCloudinaryUpload = (result: any) => {
     onChange(result.info.secure_url);
+  };
+
+  const handleDirectUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      setIsUploading(true);
+      const reader = new FileReader();
+      
+      reader.onloadend = async () => {
+        const base64 = reader.result as string;
+        
+        try {
+          const response = await fetch('/api/uploadthing', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ file: base64 }),
+          });
+          
+          const data = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(data.error || 'Failed to upload image');
+          }
+          
+          onChange(data.url);
+          toast.success("Image uploaded successfully!");
+          router.refresh();
+        } catch (error: any) {
+          console.error("Upload error:", error);
+          toast.error("Failed to upload: " + error.message);
+        } finally {
+          setIsUploading(false);
+        }
+      };
+      
+      reader.readAsDataURL(file);
+    } catch (error: any) {
+      setIsUploading(false);
+      toast.error("Failed to read file: " + error.message);
+    }
   };
 
   return (
@@ -48,24 +98,83 @@ const ImageUpload: React.FC<imageUploadProps> = ({
             </div>
           ))}
         </div>
-        <CldUploadWidget onUpload={onUpload} uploadPreset="e819yzjl">
-          {({ open }) => {
-            const onClick = () => {
-              open();
-            };
-            return (
+        
+        <Tabs defaultValue="cloudinary" className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="cloudinary">
+              Cloudinary Upload
+            </TabsTrigger>
+            <TabsTrigger value="direct">
+              Direct Upload
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="cloudinary">
+            <CldUploadWidget 
+              onUpload={onCloudinaryUpload} 
+              uploadPreset="ABAYA"
+              options={{
+                maxFiles: 5,
+                cloudName: "dq03afeam",
+                apiKey: "854841872594433",
+                sources: ["local", "url", "camera"],
+                multiple: true,
+                folder: "abaya/images",
+                publicId: `${Date.now()}`,
+                clientAllowedFormats: ["jpg", "jpeg", "png", "gif"],
+                maxFileSize: 10000000,
+              }}
+            >
+              {({ open }) => {
+                const onClick = () => {
+                  open();
+                };
+                return (
+                  <Button
+                    type="button"
+                    disabled={disabled}
+                    variant="secondary"
+                    onClick={onClick}
+                  >
+                    <ImagePlus className="w-4 h-4 mr-2" />
+                    Upload via Cloudinary
+                  </Button>
+                );
+              }}
+            </CldUploadWidget>
+          </TabsContent>
+          
+          <TabsContent value="direct">
+            <div className="flex items-center gap-4">
               <Button
                 type="button"
-                disabled={disabled}
+                disabled={disabled || isUploading}
                 variant="secondary"
-                onClick={onClick}
+                onClick={() => document.getElementById('direct-upload')?.click()}
               >
-                <ImagePlus className="w-4 h-4 mr-2" />
-                Upload an Image
+                {isUploading ? (
+                  <>
+                    <UploadCloud className="w-4 h-4 mr-2 animate-bounce" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <ImagePlus className="w-4 h-4 mr-2" />
+                    Direct Upload
+                  </>
+                )}
               </Button>
-            );
-          }}
-        </CldUploadWidget>
+              <input
+                id="direct-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleDirectUpload}
+                className="hidden"
+                disabled={disabled || isUploading}
+              />
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </MountedCheck>
   );

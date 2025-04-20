@@ -6,11 +6,14 @@ const SizePage = async ({
 }: {
   params: { sizeId: string };
 }) => {
-  const size = await prismadb.size.findUnique({
-    where: {
-      id: params.sizeId,
-    },
-  });
+  // Only query the database if sizeId is not "new"
+  const size = params.sizeId === "new" 
+    ? null 
+    : await prismadb.size.findUnique({
+        where: {
+          id: params.sizeId,
+        },
+      });
 
   return (
     <div className="flex-col md:ml-56">

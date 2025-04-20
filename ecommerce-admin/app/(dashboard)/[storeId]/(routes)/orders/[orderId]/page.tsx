@@ -9,6 +9,17 @@ const OrderPage = async ({
 }: {
   params: { orderId: string };
 }) => {
+  // Only query the database if orderId is not "new"
+  if (params.orderId === "new") {
+    return (
+      <div className="flex-col md:ml-56">
+        <div className="flex-1 p-8 pt-6 space-y-4">
+          <OrderForm initialData={null} />
+        </div>
+      </div>
+    );
+  }
+
   const order = await prismadb.order.findUnique({
     where: {
       id: params.orderId,

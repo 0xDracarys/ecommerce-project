@@ -6,18 +6,21 @@ const ColorPage = async ({
 }: {
   params: { colorId: string };
 }) => {
-  const color = await prismadb.color.findUnique({
-    where: {
-      id: params.colorId,
-    },
-  });
+  // Only query the database if colorId is not "new"
+  const color = params.colorId === "new" 
+    ? null 
+    : await prismadb.color.findUnique({
+        where: {
+          id: params.colorId,
+        },
+      });
 
   return (
-    <main className="flex-col md:ml-56">
-      <section className="flex-1 p-8 pt-6 space-y-4">
+    <div className="flex-col md:ml-56">
+      <div className="flex-1 p-8 pt-6 space-y-4">
         <ColorForm initialData={color} />
-      </section>
-    </main>
+      </div>
+    </div>
   );
 };
 

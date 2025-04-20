@@ -46,10 +46,8 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
   const [loading, setLoading] = useState(false);
 
   const title = initialData ? "Edit billboard" : "Create billboard";
-  const description = initialData ? "Edit billboard" : "Add a new billboard";
-  const toastMessage = initialData
-    ? "Billboard updated."
-    : "Billboard created.";
+  const description = initialData ? "Edit a billboard." : "Add a new billboard";
+  const toastMessage = initialData ? "Billboard updated." : "Billboard created.";
   const action = initialData ? "Save changes" : "Create";
 
   const form = useForm<BillboardFormValues>({
@@ -74,7 +72,7 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
       router.refresh();
       router.push(`/${params.storeId}/billboards`);
       toast.success(toastMessage);
-    } catch (error) {
+    } catch (error: any) {
       toast.error("Something went wrong.");
     } finally {
       setLoading(false);
@@ -90,7 +88,7 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
       router.refresh();
       router.push(`/${params.storeId}/billboards`);
       toast.success("Billboard deleted.");
-    } catch (error) {
+    } catch (error: any) {
       toast.error(
         "Make sure you removed all categories using this billboard first."
       );
@@ -108,25 +106,22 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
         onConfirm={onDelete}
         loading={loading}
       />
-      <section className="flex items-center justify-between">
-        <Heading title={title} description={description}></Heading>
+      <div className="flex items-center justify-between">
+        <Heading title={title} description={description} />
         {initialData && (
           <Button
-            variant="destructive"
-            size="icon"
-            onClick={() => setOpen(true)}
             disabled={loading}
+            variant="destructive"
+            size="sm"
+            onClick={() => setOpen(true)}
           >
-            <Trash className="w-4 h-4" />
+            <Trash className="h-4 w-4" />
           </Button>
         )}
-      </section>
+      </div>
       <Separator />
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full space-y-8"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full">
           <FormField
             control={form.control}
             name="imageUrl"
@@ -145,7 +140,7 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
               </FormItem>
             )}
           />
-          <section className="grid grid-cols-3 gap-8">
+          <div className="md:grid md:grid-cols-3 gap-8">
             <FormField
               control={form.control}
               name="label"
@@ -163,7 +158,7 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
                 </FormItem>
               )}
             />
-          </section>
+          </div>
           <Button disabled={loading} className="ml-auto" type="submit">
             {action}
           </Button>

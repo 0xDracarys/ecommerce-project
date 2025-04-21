@@ -18,37 +18,30 @@ const HomePage = async () => {
     console.error("Error loading products:", error);
   }
   
-  // Create a fallback billboard in case we can't fetch one
-  let firstBillboard = {
+  // Fetch the first billboard from database or API
+  let billboard = {
     id: 'fallback',
     label: 'Welcome to Our Store',
     imageUrl: 'https://via.placeholder.com/1200x400'
   };
   
   try {
-    // Try to fetch billboards with better error handling
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/billboards`);
-    console.log("Billboard API response status:", response.status);
+    // Use an empty ID to get the first available billboard
+    const fetchedBillboard = await getBillboard("");
     
-    if (response.ok) {
-      const billboards = await response.json();
-      console.log("Billboards loaded:", billboards.length);
-      
-      if (billboards && billboards.length > 0) {
-        firstBillboard = billboards[0];
-      }
-    } else {
-      console.error("Failed to fetch billboards:", response.statusText);
+    if (fetchedBillboard && fetchedBillboard.id) {
+      billboard = fetchedBillboard;
+      console.log("Billboard loaded successfully:", billboard.label);
     }
   } catch (error) {
-    console.error("Error fetching billboards:", error);
+    console.error("Error fetching billboard:", error);
   }
 
   return (
     <div>
       <div className="m-0 space-y-10">
         <Billboard
-          data={firstBillboard}
+          data={billboard}
           rounded=""
           additionalProps="transition aspect-[3.3/1] p-0 rounded-none"
         />

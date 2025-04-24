@@ -193,10 +193,27 @@ export async function POST(
   }
 }
 
+// CORS headers for public endpoints
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+// OPTIONS handler for CORS preflight requests
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeaders,
+  });
+}
+
 export async function GET(
   req: Request,
   { params }: { params: { storeId: string } }
 ) {
+  console.log(`[PRODUCTS_GET] Request for storeId: ${params.storeId}`);
+  
   try {
     const { searchParams } = new URL(req.url);
     const categoryId =
@@ -207,9 +224,21 @@ export async function GET(
       searchParams.get("colorId") || undefined;
     const sizeId = searchParams.get("sizeId") || undefined;
 
+    // Log request parameters for debugging
+    console.log("[PRODUCTS_GET] Search params:", {
+      storeId: params.storeId,
+      categoryId,
+      name,
+      isFeatured,
+      colorId,
+      sizeId
+    });
+
     if (!params.storeId) {
+      console.error("[PRODUCTS_GET] Missing storeId parameter");
       return new NextResponse("Store id is required", {
         status: 400,
+        headers: corsHeaders,
       });
     }
 
@@ -235,12 +264,26 @@ export async function GET(
         createdAt: "desc",
       },
     });
+    
+    console.log(`[PRODUCTS_GET] Found ${products.length} products for store ${params.storeId}`);
 
-    return NextResponse.json(products);
-  } catch (error) {
-    console.log("[PRODUCTS_GET]", error);
-    return new NextResponse("Internal error", {
-      status: 500,
+    return NextResponse.json(products, {
+      headers: corsHeaders,
     });
+  } catch (error) {
+    console.error("[PRODUCTS_GET] Error:", error);
+    return new NextResponse(
+      JSON.stringify({ 
+        error: "Internal error", 
+        message: error instanceof Error ? error.message : "Unknown error" 
+      }),
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
+      }
+    );
   }
 }

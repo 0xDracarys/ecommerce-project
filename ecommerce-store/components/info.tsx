@@ -5,6 +5,7 @@ import { ShoppingCart } from "lucide-react";
 import { Color, Product, Size } from "@/types";
 import Currency from "@/components/ui/currency";
 import Button from "@/components/ui/button";
+import FavoriteButton from "@/components/ui/favorite-button";
 import useCart from "@/hooks/use-cart";
 import {
   Accordion,
@@ -101,10 +102,18 @@ const Info: React.FC<InfoProps> = ({ data }) => {
 
   return (
     <nav>
-      {/* Name */}
-      <h1 className="text-3xl font-bold text-gray-900">
-        {data.name}
-      </h1>
+      {/* Name and Favorite Button */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-gray-900">
+          {data.name}
+        </h1>
+        <FavoriteButton 
+          productId={data.id} 
+          size="default" 
+          variant="outline"
+          className="ml-2"
+        />
+      </div>
 
       {/* Price */}
       <section className="flex items-end justify-between mt-3">

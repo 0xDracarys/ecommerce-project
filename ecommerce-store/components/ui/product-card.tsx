@@ -9,6 +9,7 @@ import { Expand } from "lucide-react";
 import { Product } from "@/types";
 
 import Currency from "@/components/ui/currency";
+import FavoriteButton from "@/components/ui/favorite-button";
 
 import usePreviewModal from "@/hooks/use-preview-modal";
 import Button from "./button";
@@ -45,6 +46,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ data }) => {
           className="object-cover rounded-md aspect-square"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
+        {/* Favorite Button */}
+        <div 
+          className="absolute top-2 right-2 z-10"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <FavoriteButton productId={data.id} />
+        </div>
         <div className="absolute w-full px-6 transition opacity-0 group-hover:opacity-100 bottom-5">
           <div className="flex justify-center gap-x-6">
             <Button

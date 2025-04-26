@@ -93,11 +93,12 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
         onConfirm={onDelete}
         loading={loading}
       />
-      <div className="bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 p-4 sm:p-6 md:p-8 mb-8">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm dark:shadow-gray-900/30 hover:shadow-md transition-all duration-200 p-4 sm:p-6 md:p-8 mb-8">
         <div className="flex items-center justify-between mb-6">
           <Heading 
             title="Store Details" 
             description="Update your store information" 
+            className="dark:text-gray-50"
           />
           <Button
             variant="destructive"
@@ -121,16 +122,16 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
                 name="name"
                 render={({ field }) => (
                   <FormItem className="col-span-1">
-                    <FormLabel className="text-sm font-medium mb-2">Name</FormLabel>
+                    <FormLabel className="text-sm font-medium mb-2 dark:text-gray-200">Name</FormLabel>
                     <FormControl>
                       <Input
                         disabled={loading}
                         placeholder="Store name"
-                        className="w-full h-10"
+                        className="w-full h-10 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 focus:ring-primary dark:focus:border-primary dark:focus:ring-primary/30"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="mt-2" />
+                    <FormMessage className="mt-2 dark:text-rose-300" />
                   </FormItem>
                 )}
               />
@@ -139,7 +140,7 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
               <Button 
                 disabled={loading} 
                 type="submit"
-                className="min-w-[120px] h-10"
+                className="min-w-[120px] h-10 dark:bg-primary dark:text-white dark:hover:bg-primary/90 dark:active:bg-primary/70 dark:disabled:bg-gray-600 dark:disabled:text-gray-400"
               >
                 {loading ? "Saving..." : "Save changes"}
               </Button>
@@ -148,12 +149,13 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
         </div>
       </div>
       
-      <div className="bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 p-4 sm:p-6 md:p-8">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm dark:shadow-gray-900/30 hover:shadow-md transition-all duration-200 p-4 sm:p-6 md:p-8">
         <div className="mb-4 md:mb-6">
           <Heading 
             title="API Access" 
             description="API endpoints for your store" 
-            size="sm" 
+            size="sm"
+            className="dark:text-gray-50"
           />
         </div>
         <div className="space-y-4">
@@ -161,6 +163,7 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
             title="NEXT_PUBLIC_API_URL"
             description={`${origin}/api/${params.storeId}`}
             variant="public"
+            className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:ring-offset-gray-900"
           />
         </div>
       </div>

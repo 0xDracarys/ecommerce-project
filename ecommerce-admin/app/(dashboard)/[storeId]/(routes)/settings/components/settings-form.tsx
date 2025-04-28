@@ -7,8 +7,9 @@ import { useParams, useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { Store } from "@prisma/client";
 import { Trash } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import React from "react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  useCustomForm,
 } from "@/components/ui/form";
 import { AlertModal } from "@/components/modals/alert-modal";
 import { ApiAlert } from "@/components/ui/api-alert";
@@ -36,6 +38,10 @@ const formSchema = z.object({
 
 type SettingsFormValues = z.infer<typeof formSchema>;
 
+/**
+ * Settings form component that allows updating store details
+ * and deletion of the store
+ */
 export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
   const params = useParams();
   const router = useRouter();
@@ -47,9 +53,10 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData,
-  });
+  }) as UseFormReturn<SettingsFormValues>;
 
-  const onSubmit = async (data: SettingsFormValues) => {
+  // Update the onSubmit handler to properly handle async submission
+  const onSubmit = React.useCallback(async (data: SettingsFormValues) => {
     try {
       setLoading(true);
       await axios.patch(`/api/stores/${params.storeId}`, data);
@@ -57,10 +64,11 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
       toast.success("Store updated.");
     } catch (error) {
       toast.error("Something went wrong.");
+      console.error("Settings update error:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [params.storeId, router]);
 
   const onDelete = async () => {
     try {
@@ -85,56 +93,80 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
         onConfirm={onDelete}
         loading={loading}
       />
-      <nav className="flex items-center justify-between">
-        <Heading
-          title="Setings"
-          description="Manage store preferences"
-        ></Heading>
-        <Button
-          variant="destructive"
-          size="icon"
-          onClick={() => setOpen(true)}
-          disabled={loading}
-        >
-          <Trash className="w-4 h-4" />
-        </Button>
-      </nav>
-      <Separator />
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full space-y-8"
-        >
-          <section className="grid grid-cols-3 gap-8">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Store name"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </section>
-          <Button disabled={loading} className="ml-auto" type="submit">
-            Save changes
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm dark:shadow-gray-900/30 hover:shadow-md transition-all duration-200 p-4 sm:p-6 md:p-8 mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <Heading 
+            title="Store Details" 
+            description="Update your store information" 
+            className="dark:text-gray-50"
+          />
+          <Button
+            variant="destructive"
+            size="icon"
+            onClick={() => setOpen(true)}
+            disabled={loading}
+            className="ml-4"
+          >
+            <Trash className="w-4 h-4" />
           </Button>
-        </form>
-      </Form>
-      <Separator />
-      <ApiAlert
-        title="NEXT_PUBLIC_API_URL"
-        description={`${origin}/api/${params.storeId}`}
-        variant="public"
-      />
+        </div>
+        <div className="w-full">
+          <Form 
+            form={form} 
+            onSubmit={onSubmit}
+            className="space-y-8"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="col-span-1">
+                    <FormLabel className="text-sm font-medium mb-2 dark:text-gray-200">Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={loading}
+                        placeholder="Store name"
+                        className="w-full h-10 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 focus:ring-primary dark:focus:border-primary dark:focus:ring-primary/30"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className="mt-2 dark:text-rose-300" />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="flex justify-end pt-6 md:pt-8">
+              <Button 
+                disabled={loading} 
+                type="submit"
+                className="min-w-[120px] h-10 dark:bg-primary dark:text-white dark:hover:bg-primary/90 dark:active:bg-primary/70 dark:disabled:bg-gray-600 dark:disabled:text-gray-400"
+              >
+                {loading ? "Saving..." : "Save changes"}
+              </Button>
+            </div>
+          </Form>
+        </div>
+      </div>
+      
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm dark:shadow-gray-900/30 hover:shadow-md transition-all duration-200 p-4 sm:p-6 md:p-8">
+        <div className="mb-4 md:mb-6">
+          <Heading 
+            title="API Access" 
+            description="API endpoints for your store" 
+            size="sm"
+            className="dark:text-gray-50"
+          />
+        </div>
+        <div className="space-y-4">
+          <ApiAlert
+            title="NEXT_PUBLIC_API_URL"
+            description={`${origin}/api/${params.storeId}`}
+            variant="public"
+            className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:ring-offset-gray-900"
+          />
+        </div>
+      </div>
     </>
   );
 };

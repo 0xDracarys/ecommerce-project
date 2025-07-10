@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  // typescript: {
+  //   ignoreBuildErrors: true, // Removed as per plan
+  // },
   images: {
     domains: ["res.cloudinary.com"],
   },
@@ -18,7 +18,8 @@ const nextConfig = {
           },
           {
             key: "Access-Control-Allow-Origin",
-            value: "http://localhost:3001",
+            // Use an environment variable, fallback to localhost for dev
+            value: process.env.FRONTEND_STORE_URL || "http://localhost:3001",
           },
           {
             key: "Access-Control-Allow-Methods",

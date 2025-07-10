@@ -1,0 +1,105 @@
+# Netlify configuration for the ecommerce-admin application
+
+[build]
+  # Base directory: Assumes dependencies (like a root package.json for workspaces) might be at the repo root.
+  # If ecommerce-admin is fully standalone for dependencies, you might set base = "ecommerce-admin/"
+  # and adjust paths below accordingly. For monorepos managed by root workspaces, leaving base as repo root
+  # and using 'package' below is common.
+  # base = "/" # Default, can be omitted if root
+
+  # Package directory: Specifies that this Netlify site configuration is for the 'ecommerce-admin' app
+  # within the monorepo. Netlify will look for this app's specific configurations here.
+  # This also means build commands are run from the context of this directory IF base is not set,
+  # or from base if base is set. Given Next.js structure, it's often simpler to let Netlify's
+  # Next.js plugin handle paths by setting the package directory.
+  # The Netlify docs recommend setting the package directory (e.g. "ecommerce-admin") and leaving
+  # the base directory as the repository root for monorepos using workspaces.
+  # Netlify will then typically run 'npm run build' from the root, but Next.js plugin
+  # is smart about finding the correct Next.js project in the package directory.
+  # However, to be explicit and align with Netlify's UI fields:
+  # If you set "Base directory" to "ecommerce-admin" in Netlify UI, then command and publish are relative to that.
+  # If you set "Base directory" to "/" and "Package directory" to "ecommerce-admin" in Netlify UI,
+  # Netlify will adjust context. Let's assume "Package directory" approach.
+
+  # Command to build the Next.js application
+  command = "npm run build" # or yarn build, or specific next build if not aliased
+  # Directory (relative to the package directory if specified, or base) that contains the deploy-ready assets
+  publish = ".next"
+  # Package directory for Netlify to target this specific app in the monorepo
+  # This is a more modern way Netlify suggests for monorepos.
+  # It implies that Netlify should focus its operations for this site within 'ecommerce-admin'.
+  # Build command will still typically be run from the repository root if using workspaces,
+  # but Netlify's build system is aware of this package path.
+  # This setting is usually configured in the Netlify UI as "Package directory".
+  # For netlify.toml, if this file is IN ecommerce-admin/, this effectively sets the context.
+  # If this netlify.toml was at the root, you'd use:
+  # [build]
+  #   base = "ecommerce-admin" # or publish = "ecommerce-admin/.next" and command = "cd ecommerce-admin && npm run build"
+  #   command = "npm run build"
+  #   publish = ".next"
+
+# Environment variables
+# These are placeholders. Actual values should be set in the Netlify UI
+# for security reasons, especially for secrets.
+# Netlify allows setting environment variables per deploy context (production, deploy-preview, branch-deploy).
+[build.environment]
+  # Node version (optional, Netlify often has recent versions. Set if you need a specific one)
+  # NODE_VERSION = "18" # Example
+
+  # Clerk Authentication
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY = "pk_test_YOUR_ACTUAL_KEY"
+  CLERK_SECRET_KEY = "sk_test_YOUR_ACTUAL_KEY"
+  NEXT_PUBLIC_CLERK_SIGN_IN_URL = "/sign-in"
+  NEXT_PUBLIC_CLERK_SIGN_UP_URL = "/sign-up"
+  NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL = "/"
+  NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL = "/"
+
+  # MongoDB
+  DATABASE_URL = "mongodb+srv://YOUR_USER:YOUR_PASSWORD@YOUR_CLUSTER.mongodb.net/YOUR_DB"
+
+  # Cloudinary
+  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME = "YOUR_CLOUD_NAME"
+  # CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET are typically used server-side
+  # and might not be needed if all uploads are client-side directly to Cloudinary
+  # or if the Next.js Cloudinary package handles this via the cloud name + unsigned presets.
+  # If your backend (API routes) needs them, add them here.
+  # CLOUDINARY_API_KEY = "YOUR_CLOUDINARY_API_KEY"
+  # CLOUDINARY_API_SECRET = "YOUR_CLOUDINARY_API_SECRET"
+
+
+  # Stripe
+  STRIPE_API_KEY = "sk_test_YOUR_STRIPE_SECRET_KEY"
+  STRIPE_WEBHOOK_SECRET = "whsec_YOUR_STRIPE_WEBHOOK_SECRET"
+  # This will be the live URL of your deployed ecommerce-store on Netlify
+  FRONTEND_STORE_URL = "https://your-store-netlify-site-name.netlify.app" # IMPORTANT: Update this
+
+# Redirects and Headers (Optional, can also be in next.config.js or _redirects/_headers files)
+# Example:
+# [[redirects]]
+#   from = "/old-admin-path"
+#   to = "/new-admin-path"
+#   status = 301
+
+# [[headers]]
+#   for = "/*"
+#   [headers.values]
+#     X-Frame-Options = "DENY"
+
+# Netlify Dev specific settings (optional)
+# [dev]
+#   command = "npm run dev" # Command to run when using `netlify dev`
+#   port = 3000 # Port for local dev server
+#   publish = ".next" # Folder with static assets for local dev
+#   # For Next.js, targetPort is often more relevant if next dev runs on its own port
+#   targetPort = 3000 # The port your framework's dev server runs on
+#   framework = "#static" # or "#nextjs" - though Netlify usually auto-detects Next.js
+
+# The Netlify Next.js runtime plugin (@netlify/plugin-nextjs) is usually auto-installed
+# and configured. If you need to pin a version or add specific plugin inputs:
+# [[plugins]]
+#   package = "@netlify/plugin-nextjs"
+#   # Optional inputs for the plugin, if needed
+#   # [plugins.inputs]
+#   #   publish = ".next" # Default, usually not needed to specify
+#   #   # Other plugin-specific options
+```

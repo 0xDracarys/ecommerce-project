@@ -1,0 +1,50 @@
+# Netlify configuration for the ecommerce-store application
+
+[build]
+  # Base directory: Assumes dependencies (like a root package.json for workspaces) might be at the repo root.
+  # Similar to ecommerce-admin, if using a workspace structure where dependencies are hoisted
+  # or managed from the root, the base is effectively the repository root.
+  # This netlify.toml being in ecommerce-store/ provides context for this specific app.
+  # base = "/" # Default, can be omitted if root
+
+  # Command to build the Next.js application
+  command = "npm run build" # or yarn build, or specific next build if not aliased
+  # Directory (relative to the package directory if specified, or base) that contains the deploy-ready assets
+  publish = ".next"
+  # Package directory for Netlify to target this specific app in the monorepo.
+  # If this netlify.toml is IN ecommerce-store/, this sets the context.
+  # In Netlify UI, you'd set "Package directory" to "ecommerce-store" and "Base directory" to repo root.
+
+# Environment variables
+# These are placeholders. Actual values should be set in the Netlify UI.
+[build.environment]
+  # Node version (optional)
+  # NODE_VERSION = "18" # Example
+
+  # API URL for the admin backend
+  # This will be the live URL of your deployed ecommerce-admin API on Netlify, including the store ID.
+  # Example: https://your-admin-netlify-site-name.netlify.app/api/your-store-id
+  NEXT_PUBLIC_API_URL = "https://your-admin-app-name.netlify.app/api/[your_store_id]" # IMPORTANT: Update this
+
+  # If Supabase is actively used for features in the store app, its environment variables would go here.
+  # Example from general Supabase setup (actual variables might differ based on usage):
+  # NEXT_PUBLIC_SUPABASE_URL = "https://your-supabase-project-id.supabase.co"
+  # NEXT_PUBLIC_SUPABASE_ANON_KEY = "your-supabase-anon-key"
+
+  # Stripe Public Key (if used directly in the store frontend for Stripe.js, etc.)
+  # The main Stripe operations are likely handled by the admin backend.
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = "pk_test_YOUR_STRIPE_PUBLISHABLE_KEY"
+
+
+# Netlify Dev specific settings (optional)
+# [dev]
+#   command = "npm run dev" # Runs `next dev -p 3001` as per package.json
+#   port = 3001 # Port for local dev server as specified in package.json dev script
+#   publish = ".next"
+#   targetPort = 3001 # The port your framework's dev server runs on
+#   framework = "#nextjs" # Netlify usually auto-detects Next.js
+
+# The Netlify Next.js runtime plugin (@netlify/plugin-nextjs) is usually auto-installed.
+# [[plugins]]
+#   package = "@netlify/plugin-nextjs"
+```
